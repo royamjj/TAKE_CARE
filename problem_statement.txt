@@ -1,0 +1,22 @@
+Medicine manufacturing:
+
+1) While the manufacturer is allowed to maintain the temperature of the tablets between,
+-40 and -30 degrees Celsius, the temperature of the tablets should never remain
+between -33 and -30 degrees for longer than 20 minutes at a time.
+2) Also, the manufacturer should maintain a log of when the cooling chamber for the
+production of the tablets is opened.
+
+Objectives:
+Write the product code, required to run the polynomial regression algorithm on the data
+sent by the sensor.
+Using the prediction data, we should be able to take early action, whenever the graph predicted that the temperature would be maintained within
+the -33 and -30 degrees Celsius range for longer than 20 minutes.
+a) Keep the temperature monitoring circuit inside your fridge with the door of the fridge
+closed, and let the system record the temperature readings for about 2 hours.
+b) Using the reading that you received in the 2 hours, set boundaries for the temperature
+within the fridge.
+c) Write a python code which will fetch the temperature data, every 10 seconds, and send
+out an Telegram alert, if the temperature goes beyond the temperature thresholds you
+decided on in objective ‘b’.
+d) Modify the python code, to also do a Z-score analysis and print the line “Someone has
+opened the fridge door” when an anomaly is detected.
