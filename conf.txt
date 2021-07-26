@@ -1,6 +1,0 @@
-api_key = "dc398b9c-b80e-420d-8b59-f144b48017cc"
-device_id = "BOLT13623818"
-telegram_chat_id = "@temprature_of_mro"
-telegram_bot_id = "bot1875340863:AAElmqnudWodK8DAd4ERQaEMRDgz1KUm0bY"
-frame_size = 50
-factor = 10
