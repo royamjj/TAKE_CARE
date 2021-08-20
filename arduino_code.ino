@@ -36,7 +36,9 @@ else if (status == "ANOMALY"){
   digitalWrite(buzzer, LOW);
   analogWrite(fan, 255);
 }
-
+else if (status == "COLD"){
+  signal(200, red, 2, 20);
+  analogWrite(fan, 0);
 }
 void signal(int time_delay, int led_pin,int pin_buzzer,int times){
   for (int i=0; i< times; i++){
@@ -48,5 +50,4 @@ void signal(int time_delay, int led_pin,int pin_buzzer,int times){
   delay(time_delay);
   }
   delay(1000);
-  
 }
