@@ -9,9 +9,23 @@ my_device = Bolt(conf.api_key, conf.device_id)
 x = [i for i in range(50)]
 minimum_temperature = 0
 temp_range = 1
-threshold = 10
+threshold = 5
 temperature_values = []
 
+def get_data():
+    return json.loads(my_device.analogRead('A0'))
+
+def arduino_alert(n):
+    if n == 0:
+        my_device.serialWrite('GREEN')
+    elif n == 1:
+        my_device.serialWrite('YELLOW')
+    elif n == 2:
+        my_device.serialWrite('RED')
+    elif n ==3:
+        my_device.serialWrite('ANOMALY')
+    elif n == 4:
+        my_device.serialWrite('COLD')
 
 def send_telegram_message(message):
     url = 'https://api.telegram.org/' + conf.telegram_bot_id + "/sendMessage"
@@ -51,8 +65,7 @@ def regression(data_x, data_y, time_of_prediction):
 
 
 while True:
-    temp_data = my_device.analogRead('A0')
-    response = json.loads(temp_data)
+    response = get_data()
     if response['success'] != 1:
         print('Error reading sensor value, error is : ' + response['value'])
         continue
@@ -63,7 +76,17 @@ while True:
         continue
     v = round(float(sensor_value / 10.24), 3)
     if v >= threshold:
+        arduino_alert(2)
         send_telegram_message('Temperature has crossed threshold!')
+        temperature_values.append(v)
+        print(v)
+        continue
+    if v <= minimum_temperature:
+        arduino_alert(4)
+        send_telegram_message('Temperature has been fallen below minimum!')
+        temperature_values.append(v)
+        print(v)
+        continue
     print(v)
     temperature_values.append(v)
     bound = compute_bounds(temperature_values, conf.frame_size, conf.factor)
@@ -74,9 +97,12 @@ while True:
     print('high bound {} low bound {}'.format(bound[0], bound[1]))
     pre = regression(x, temperature_values, 20)
     if pre.min() >= temp_range:
+        arduino_alert(1)
         send_telegram_message("The temperature can rise in next 20 minutes! Take care.")
         time.sleep(10)
         continue
-    if v >= bound[0]:
+    if v >= bound[0] or v <= bound[1]:
+        arduino_alert(3)
         send_telegram_message('ANOMALY DETECTED!')
+    arduino_alert(0)
     time.sleep(20)
