@@ -21,12 +21,13 @@ def arduino_alert(n):
     elif n == 1:
         my_device.serialWrite('YELLOW')
     elif n == 2:
-        my_device.serialWrite('RED')
+        my_device.serialWrite('ANOMALY_HIGH')
     elif n ==3:
-        my_device.serialWrite('ANOMALY')
+        my_device.serialWrite('ANOMALY_LOW')
     elif n == 4:
-        my_device.serialWrite('COLD')
-
+        my_device.serialWrite('THRESHOLD_HIGH')
+    elif n == 5:
+        my_device.serialWrite('THRESHOLD_LOW')
 def send_telegram_message(message):
     url = 'https://api.telegram.org/' + conf.telegram_bot_id + "/sendMessage"
     data = {"chat_id": conf.telegram_chat_id, "text":message}
@@ -76,13 +77,13 @@ while True:
         continue
     v = round(float(sensor_value / 10.24), 3)
     if v >= threshold:
-        arduino_alert(2)
+        arduino_alert(4)
         send_telegram_message('Temperature has crossed threshold!')
         temperature_values.append(v)
         print(v)
         continue
     if v <= minimum_temperature:
-        arduino_alert(4)
+        arduino_alert(5)
         send_telegram_message('Temperature has been fallen below minimum!')
         temperature_values.append(v)
         print(v)
@@ -101,8 +102,13 @@ while True:
         send_telegram_message("The temperature can rise in next 20 minutes! Take care.")
         time.sleep(10)
         continue
-    if v >= bound[0] or v <= bound[1]:
+    if v >= bound[0]:
+        arduino_alert(2)
+        send_telegram_message('ANOMALY DETECTED!')
+        continue
+    if v <= bound[1]:
         arduino_alert(3)
         send_telegram_message('ANOMALY DETECTED!')
+        continue
     arduino_alert(0)
     time.sleep(20)
