@@ -19,8 +19,11 @@ Serial.println(status);
 if (status == "GREEN"){
 signal(0, green, buzzer, 1, 125, fan);
 }
-else if (status == "YELLOW"){
+else if (status == "PREDICTED_HIGH"){
   signal(1200, yellow, buzzer, 10, 200, fan);
+}
+else if (status == "PREDICTED_LOW"){
+  signal(1200, yellow, buzzer, 10, 50, fan);
 }
 else if (status == "ANOMALY_HIGH"){
   signal(5000, red, buzzer, 1, 255, fan);
