@@ -8,6 +8,7 @@ import json, time, math, statistics
 my_device = Bolt(conf.api_key, conf.device_id)
 x = [i for i in range(50)]
 minimum_temperature = 0
+minimum_range = 0.1
 temp_range = 1
 threshold = 5
 temperature_values = []
@@ -19,14 +20,16 @@ def arduino_alert(n):
     if n == 0:
         my_device.serialWrite('GREEN')
     elif n == 1:
-        my_device.serialWrite('YELLOW')
+        my_device.serialWrite('PREDICTED_HIGH')
     elif n == 2:
+        my_device.serialWrite('PREDICTED_LOW')
+    elif n == 3:
         my_device.serialWrite('ANOMALY_HIGH')
-    elif n ==3:
-        my_device.serialWrite('ANOMALY_LOW')
     elif n == 4:
-        my_device.serialWrite('THRESHOLD_HIGH')
+        my_device.serialWrite('ANOMALY_LOW')
     elif n == 5:
+        my_device.serialWrite('THRESHOLD_HIGH')
+    elif n == 6:
         my_device.serialWrite('THRESHOLD_LOW')
 def send_telegram_message(message):
     url = 'https://api.telegram.org/' + conf.telegram_bot_id + "/sendMessage"
@@ -77,13 +80,13 @@ while True:
         continue
     v = round(float(sensor_value / 10.24), 3)
     if v >= threshold:
-        arduino_alert(4)
+        arduino_alert(5)
         send_telegram_message('Temperature has crossed threshold!')
         temperature_values.append(v)
         print(v)
         continue
     if v <= minimum_temperature:
-        arduino_alert(5)
+        arduino_alert(6)
         send_telegram_message('Temperature has been fallen below minimum!')
         temperature_values.append(v)
         print(v)
@@ -102,12 +105,17 @@ while True:
         send_telegram_message("The temperature can rise in next 20 minutes! Take care.")
         time.sleep(10)
         continue
-    if v >= bound[0]:
+    elif pre.max() <= minimum_range:
         arduino_alert(2)
+        send_telegram_message("The temperature can rise in next 20 minutes! Take care.")
+        time.sleep(10)
+        continue
+    if v >= bound[0]:
+        arduino_alert(3)
         send_telegram_message('ANOMALY DETECTED!')
         continue
-    if v <= bound[1]:
-        arduino_alert(3)
+    elif v <= bound[1]:
+        arduino_alert(4)
         send_telegram_message('ANOMALY DETECTED!')
         continue
     arduino_alert(0)
