@@ -17,20 +17,20 @@ def get_data():
     return json.loads(my_device.analogRead('A0'))
 
 def arduino_alert(n):
-    if n == 0:
-        my_device.serialWrite('GREEN')
-    elif n == 1:
-        my_device.serialWrite('PREDICTED_HIGH')
-    elif n == 2:
-        my_device.serialWrite('PREDICTED_LOW')
-    elif n == 3:
-        my_device.serialWrite('ANOMALY_HIGH')
-    elif n == 4:
-        my_device.serialWrite('ANOMALY_LOW')
-    elif n == 5:
-        my_device.serialWrite('THRESHOLD_HIGH')
-    elif n == 6:
-        my_device.serialWrite('THRESHOLD_LOW')
+    if n == 'GREEN':
+        my_device.serialWrite('0')
+    elif n == "PREDICTED_HIGH":
+        my_device.serialWrite('')
+    elif n == "PREDICTED_LOW":
+        my_device.serialWrite('2')
+    elif n == 'ANOMALY_HIGH':
+        my_device.serialWrite('3')
+    elif n == "ANOMALY_LOW":
+        my_device.serialWrite('4')
+    elif n == 'THRESHOLD_HIGH':
+        my_device.serialWrite('5')
+    elif n == 'THRESHOLD_LOW':
+        my_device.serialWrite('6')
 def send_telegram_message(message):
     url = 'https://api.telegram.org/' + conf.telegram_bot_id + "/sendMessage"
     data = {"chat_id": conf.telegram_chat_id, "text":message}
@@ -80,13 +80,13 @@ while True:
         continue
     v = round(float(sensor_value / 10.24), 3)
     if v >= threshold:
-        arduino_alert(5)
-        send_telegram_message('Temperature has crossed threshold!')
+        arduino_alert('THRESHOLD_HIGH')
+        send_telegram_message('Temperature has crossed the maximum!')
         temperature_values.append(v)
         print(v)
         continue
     if v <= minimum_temperature:
-        arduino_alert(6)
+        arduino_alert('THRESHOLD_LOW')
         send_telegram_message('Temperature has been fallen below minimum!')
         temperature_values.append(v)
         print(v)
@@ -101,22 +101,22 @@ while True:
     print('high bound {} low bound {}'.format(bound[0], bound[1]))
     pre = regression(x, temperature_values, 20)
     if pre.min() >= temp_range:
-        arduino_alert(1)
+        arduino_alert("PREDICTED_HIGH")
         send_telegram_message("The temperature can rise in next 20 minutes! Take care.")
         time.sleep(10)
         continue
     elif pre.max() <= minimum_range:
-        arduino_alert(2)
-        send_telegram_message("The temperature can rise in next 20 minutes! Take care.")
+        arduino_alert("PREDICTED_LOW")
+        send_telegram_message("The temperature can go low in next 20 minutes! Take care.")
         time.sleep(10)
         continue
     if v >= bound[0]:
-        arduino_alert(3)
-        send_telegram_message('ANOMALY DETECTED!')
+        arduino_alert('ANOMALY_HIGH')
+        send_telegram_message('HIGH ANOMALY DETECTED!')
         continue
     elif v <= bound[1]:
-        arduino_alert(4)
-        send_telegram_message('ANOMALY DETECTED!')
+        arduino_alert('ANOMALY_LOW')
+        send_telegram_message('LOW ANOMALY DETECTED!')
         continue
-    arduino_alert(0)
+    arduino_alert('GREEN')
     time.sleep(20)
