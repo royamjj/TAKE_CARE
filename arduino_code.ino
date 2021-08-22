@@ -16,25 +16,25 @@ void loop() {
 while(Serial.available()==0){}
 status=Serial.readString();
 Serial.println(status);
-if (status == "GREEN"){
+if (status == "0"){
 signal(0, green, buzzer, 1, 125, fan);
 }
-else if (status == "PREDICTED_HIGH"){
+else if (status == "1"){
   signal(1200, yellow, buzzer, 10, 200, fan);
 }
-else if (status == "PREDICTED_LOW"){
+else if (status == "2"){
   signal(1200, yellow, buzzer, 10, 50, fan);
 }
-else if (status == "ANOMALY_HIGH"){
+else if (status == "3"){
   signal(5000, red, buzzer, 1, 255, fan);
 }
-else if (status == "ANOMALY_LOW"){
+else if (status == "4"){
   signal(5000, red, buzzer, 1, 0, fan);
 }
-else if (status == "THRESHOLD_HIGH"){
+else if (status == "5"){
   signal(200, red, buzzer, 10, 255, fan);
 }
-else if (status == "THRESHOLD_LOW"){
+else if (status == "6"){
   signal(200, red, buzzer, 10, 0, fan);
 }
 void signal(int time_delay, int led_pin,int pin_buzzer,int times, int fan_speed, int fan_pin){
