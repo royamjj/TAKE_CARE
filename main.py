@@ -20,7 +20,7 @@ def arduino_alert(n):
     if n == 'GREEN':
         my_device.serialWrite('0')
     elif n == "PREDICTED_HIGH":
-        my_device.serialWrite('')
+        my_device.serialWrite('1')
     elif n == "PREDICTED_LOW":
         my_device.serialWrite('2')
     elif n == 'ANOMALY_HIGH':
