@@ -7,10 +7,8 @@ import requests
 import json, time, math, statistics
 my_device = Bolt(conf.api_key, conf.device_id)
 x = [i for i in range(50)]
-minimum_temperature = 0
-minimum_range = 0.1
-temp_range = 1
-threshold = 5
+lower_threshold = 0
+upper_threshold = 1
 temperature_values = []
 
 def get_data():
@@ -79,13 +77,13 @@ while True:
         print("There was an error while parsing the response: ", e)
         continue
     v = round(float(sensor_value / 10.24), 3)
-    if v >= threshold:
+    if v >= upper_threshold:
         arduino_alert('THRESHOLD_HIGH')
         send_telegram_message('Temperature has crossed the maximum!')
         temperature_values.append(v)
         print(v)
         continue
-    if v <= minimum_temperature:
+    if v <= lower_threshold:
         arduino_alert('THRESHOLD_LOW')
         send_telegram_message('Temperature has been fallen below minimum!')
         temperature_values.append(v)
@@ -100,12 +98,12 @@ while True:
         continue
     print('high bound {} low bound {}'.format(bound[0], bound[1]))
     pre = regression(x, temperature_values, 20)
-    if pre.min() >= temp_range:
+    if pre.max() >= upper_threshold:
         arduino_alert("PREDICTED_HIGH")
         send_telegram_message("The temperature can rise in next 20 minutes! Take care.")
         time.sleep(10)
         continue
-    elif pre.max() <= minimum_range:
+    elif pre.min() <= lower_threshold:
         arduino_alert("PREDICTED_LOW")
         send_telegram_message("The temperature can go low in next 20 minutes! Take care.")
         time.sleep(10)
