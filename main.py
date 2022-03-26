@@ -76,7 +76,7 @@ while True:
     except Exception as e:
         print("There was an error while parsing the response: ", e)
         continue
-    v = round(float(sensor_value / 10.24), 3)
+    v = round(float(sensor_value / 10.24), 3) //actual temperature
     if v >= upper_threshold:
         arduino_alert('THRESHOLD_HIGH')
         send_telegram_message('Temperature has crossed the maximum!')
